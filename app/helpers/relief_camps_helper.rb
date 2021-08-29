@@ -1,0 +1,2 @@
+module ReliefCampsHelper
+end

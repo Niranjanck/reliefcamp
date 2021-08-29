@@ -1,0 +1,11 @@
+class CreateReliefCamps < ActiveRecord::Migration[5.2]
+  def change
+    create_table :relief_camps do |t|
+      t.string :camp_name
+      t.string :description
+      t.string :phone
+
+      t.timestamps
+    end
+  end
+end

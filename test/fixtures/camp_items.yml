@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  quantity: MyString
+  relief_camps: one
+  items: one
+
+two:
+  quantity: MyString
+  relief_camps: two
+  items: two

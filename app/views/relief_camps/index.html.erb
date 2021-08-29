@@ -1,0 +1,73 @@
+
+<p id="notice"><%= notice %></p>
+<div id="page-top">
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+
+          <!-- DataTales Example -->
+          <div class="card shadow mb-4">
+              <% if super_admin_signed_in? %>
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Relief Camps<span class="float-right" ><%= link_to new_relief_camp_path do %> <i class="fas fa-plus"></i> Add New<% end %>
+            </span></h6>
+            </div>
+            <% end %>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                  <tr>
+                    <th>Camp Name</th>
+                    <th>Description</th>
+                    <th>Phone</th>
+                    <%if super_admin_signed_in?%> <th>Actions</th> <%end%>
+                  </tr>
+                  </thead>
+
+                  <tbody>
+                  <% @relief_camps.each do |relief_camp| %>
+                      <tr>
+                        <td><%= relief_camp.camp_name %></td>
+                        <td><%= relief_camp.description %></td>
+                        <td><%= relief_camp.phone %></td>
+                        <%if super_admin_signed_in?%>
+                            <td><%= link_to relief_camp do%><i class="fas fa-eye" aria-hidden="true"></i><% end %>
+                              <%= link_to edit_relief_camp_path(relief_camp) do%><i class="far fa-edit" aria-hidden="true"></i><% end %>
+                              <%= link_to relief_camp, method: :delete, data: { confirm: 'Are you sure?' } do %><i class="fas fa-trash" aria-hidden="true"></i><% end %>
+                            </td>
+                        <%end%>
+
+                      </tr>
+                  <% end %>  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+
+
+</div>

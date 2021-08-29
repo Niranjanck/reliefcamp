@@ -1,0 +1,186 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
+
+<div id="map-area" style="height: 95%;z-index:1;"></div>
+<%= render partial: 'user_map', locals: {users:CollectionCenter.all,
+                                                   title: 'CollectionCenter',
+                                                   lat: nil,
+                                                   long: nil,
+                                                   zoom: 12 } %>
+
+<script type="text/javascript">
+    var start_time = moment();
+    var end_time = moment().add(10, 'minutes');
+    var stateArray = ['prev', 'current', 'next'];
+    var currentState = 1;
+    var colorParams;
+    var alertColor;
+    var stateChangePause = false;
+    var dashboardStats = null;
+    var weatherData = null;
+    var is_sr_on_map = true;
+    var is_weather_on_map = true;
+    var users = [];
+    var selected_user = null;
+
+    function removeSelectedUser() {
+        selected_user = null;
+        $('#search_staff').val('');
+        updateStatsOnMap(dashboardStats);
+    }
+
+    dashboardStats = { users: [], tasks: []};
+
+    function updateDashboard() {
+        updateStatsOnMap(dashboardStats);
+
+        $('#search_staff').autocomplete({
+            source: users.map(function (item, index) {
+                return {label: item.name, value: item.name, id: item.user_id}
+            }),
+            select: function (event, ui) {
+                $(this).val(ui.item.label);
+                selected_user = ui.item.id;
+                updateStatsOnMap(dashboardStats);
+            }
+        });
+    }
+
+    function refreshData() {
+        refreshDashboardStats();
+    }
+
+    function refreshDashboardStats() {
+        dashboardStats = {
+            relief_camps: [
+                <% ReliefCamp.all.each do |rc| %>
+                { name: '<%= rc.camp_name %>',url: '<%= relief_camp_path(rc) %>', icon: 'sr-as-red.png', location: { latitude: <%= rc.latitude %>, longitude: <%= rc.longitude %>}},
+                <% end %>
+                ],
+            collection_centers: [
+                <% CollectionCenter.all.each do |cc| %>
+                { name: '<%= cc.center_name %>',url: '<%= collection_center_path(cc) %>', icon: 'sr-as-blue.png', location: { latitude: <%= cc.latitude %>, longitude: <%= cc.longitude %>}},
+                <% end %>
+            ]
+        };
+        updateDashboard();
+
+        $.ajax({
+            url: "dashboard_stats_dealer_path(@dealer, format: :json)",
+            type: "GET",
+            params: {},
+            success: function(data, textStatus, jqXHR) {
+                dashboardStats = data;
+                updateDashboard();
+            }
+        });
+    }
+
+    function refreshStaffStats() {
+        $.ajax({
+            url: "staff_stats_dealer_path(@dealer, format: :json)",
+            type: "GET",
+            params: {},
+            success: function(data, textStatus, jqXHR) {
+                dashboardStats['users'] = data;
+                updateDashboard();
+            }
+        });
+    }
+
+    function refreshTaskStats() {
+        $.ajax({
+            url: "task_stats_dealer_path(@dealer, format: :json)",
+            type: "GET",
+            params: {},
+            success: function(data, textStatus, jqXHR) {
+                dashboardStats['tasks'] = data;
+                updateDashboard();
+            }
+        });
+    }
+
+    function refreshWeatherData() {
+    }
+
+    function refreshNewSRCalls() {
+    }
+
+    $(document).ready(
+
+        function() {
+
+            $('#notification').height($('#side-widget').height() - 200);
+            $('#notification_container').height($('#notification').height() - 67);
+
+            refreshData();
+
+            setInterval(function() { if (pageVisible) { refreshStaffStats(); } else { console.log("Skipping API since page is not visible"); }}, 35 * 1000);
+            setInterval(function() { if (pageVisible) { refreshTaskStats(); } else { console.log("Skipping API since page is not visible"); }}, 65 * 1000);
+            setInterval(function() { if (pageVisible) { refreshWeatherData(); } else { console.log("Skipping API since page is not visible"); }}, 110 * 1000);
+            setInterval(function() { if (pageVisible) { refreshNewSRCalls(); } else { console.log("Skipping API since page is not visible"); }}, 50 * 1000);
+
+            $("#department").change(function(option, checked, select){
+                updateDashboard();
+            });
+
+            $('#map-period .state').click(function(){
+                var id =  $(this).attr("id");
+                currentState = parseInt($('#period-content').attr("data-id"));
+                if(currentState==1){
+                    $('#'+id).addClass("disabled");
+                    $('#'+id).css("opacity", "0.5");
+                }
+                else if((currentState==0&&id=='next') || (currentState==2&&id=='prev')){
+                    $('#next').removeClass("disabled");
+                    $('#prev').removeClass("disabled");
+                    $('.state').css("opacity", "1");
+
+                }
+                if(id=="next"){
+                    start_time = start_time.add(1, 'hours');
+                    if(currentState == 0){
+                        end_time = moment().add(10, 'minutes');
+                    }else{end_time = moment().add(2, 'hours');}
+                    currentState++;
+                }else if(id=="prev"){
+                    start_time = start_time.subtract(1, 'hours');
+                    if(currentState == 2){
+                        end_time = moment().add(10, 'minutes');
+                    }else{end_time = moment();}
+                    currentState--;
+                }
+                $('#period-heading').text(stateArray[currentState]+' Hour');
+                $('#period-content').attr("data-id", currentState)
+                $('#period-time').text(start_time.format('h:mm a') +'-'+end_time.format('h:mm a') )
+                stateChangePause = true;
+                getContent('warden', 'all', stateArray[currentState]);
+                $.ajax({
+                    url: "dealer_path(@dealer, format: :js)",
+                    type: "GET",
+                    data:{state: stateArray[currentState]}
+                });
+            });
+            $('#color-options a').click(function(){
+                $('#color-grp').removeClass('open');
+                $('#color-selected').text($(this).text());
+            });
+            $('.main-container').css("padding", "0px");
+            var mapHeight = $('#map-view').height();
+            $('.clearfix').css("padding", 0);
+            windowResize();
+        });
+
+    $(window).resize(function(){
+        windowResize();
+    });
+
+    function windowResize() {
+        var headerHeight = $('header.navbar').height();
+        var msgHeight = $("#ds_stats").height();
+        var contentHeight = $(window).height() - headerHeight - msgHeight + 10;
+
+        $('#map-view').css({"height": contentHeight + 'px'});
+        $('#side-widget').css({"height": contentHeight + 'px'});
+        $('#alert-message').css({"height": contentHeight + 'px'});
+    }
+</script>

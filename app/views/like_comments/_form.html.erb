@@ -1,0 +1,33 @@
+<%= form_with(model: like_comment, local: true) do |form| %>
+  <% if like_comment.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(like_comment.errors.count, "error") %> prohibited this like_comment from being saved:</h2>
+
+      <ul>
+      <% like_comment.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+    <%= form.hidden_field :notification_id ,:value =>  params[:iid] %>
+    <div class="form-group row"style="margin-left: 10%;margin-top: 10px;">
+      <div class="col-sm-6 mb-3 mb-sm-0">
+        <%= form.radio_button :like, true %>
+        <%= form.label :like, 'Like', :value => true %>
+        <%= form.radio_button :like, false %>
+        <%= form.label :gender, 'Dislike', :value => false %>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <div class="col-sm-6 mb-3 mb-sm-0">
+        <%= form.label :comment %>
+        <%= form.text_area :comment %>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit "comment", class: "btn btn-primary" %>
+    </div>
+<% end %>

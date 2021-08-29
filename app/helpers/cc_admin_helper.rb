@@ -1,0 +1,2 @@
+module CcAdminHelper
+end

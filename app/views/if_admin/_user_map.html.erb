@@ -1,0 +1,266 @@
+<script type="text/javascript">
+
+    var map;
+    var myLatlng;
+    var type;
+    var kind;
+    var period;
+    var markers = {};
+    var infoWindow;
+    var markersGroup = {};
+    var markerCluster = null;
+    var weatherMarkers = [];
+    var sr_markers = [];
+
+    var script = document.createElement('script');
+    var gmapUrl = "https://maps.googleapis.com/maps/api/js?sensor=false&callback=initialize&key=AIzaSyCLj2dwv2yKzild24ZZP-FSM-bQ3h4XsY4"
+    script.src = gmapUrl;
+    script.id = "gmap";
+    document.body.appendChild(script);
+    google.maps.event.addDomListener(window, 'load', function() {
+        initialize();
+    });
+
+    $('#mapModal').on('shown.bs.modal', function () {
+        google.maps.event.trigger(map, 'resize');
+        map.setCenter(myLatlng);
+    });
+    function initialize() {
+        <% lat  ||= 10.8505 %>
+        <% long ||= 76.2711 %>
+        <% zoom ||= 12 %>
+        myLatlng = new google.maps.LatLng(<%= lat %>, <%= long %>);
+        markersGroup = intializeMarkersGroup();
+        type = "warden";
+        kind = "all";
+        var mapOptions = {
+            zoom: <%= zoom %>,
+            center: myLatlng,
+            mapTypeControl: false,
+            streetViewControl: false,
+            zoomControl: true,
+            zoomControlOptions: {
+                position: google.maps.ControlPosition.RIGHT_TOP
+            }
+        };
+        map = new google.maps.Map(document.getElementById('map-area'), mapOptions);
+        $("#mapModal").on("shown.bs.modal",function(){
+            google.maps.event.trigger(map, 'resize');
+            map.setZoom( map.getZoom());
+        });
+
+        if (dashboardStats != null) {
+            updateStatsOnMap(dashboardStats);
+        }
+    }
+    function removeAllMarker(map){
+        $.each(Object.keys(markers), function(index, key) {
+            markerCluster.removeMarker(markers[key]);
+            //markers[key].setMap(map);
+        });
+        markers = {};
+
+        $.each(sr_markers, function(index, marker) {
+            marker.setMap(map);
+        });
+        sr_markers = [];
+    }
+
+    function getStatusContainer(color, type) {}
+
+    function getMessage(icon){
+        text = '';
+        color = '';
+        switch(icon){
+            case "blue":
+                text = "blue";
+                color = "#25a2db";
+                break;
+            case "red":
+                text = "red";
+                color = "#f3674b";
+                break;
+            case "amber":
+                text = "amber";
+                color = "#ffbf00";
+                break;
+            case "green":
+                text = "green";
+                color = "#cae6a4";
+                break;
+            case "grey":
+                text = "grey";
+                color = "#c0c0c0";
+                break;
+        }
+        return [text, color]
+    }
+
+    function intializeMarkersGroup(){
+        return { red: [], green: [], grey: [], amber: [], blue: [] }
+    }
+
+    function get_loc_code(value) {
+        if (value != null && value["current_task"] != null) {
+            return value["current_task"]["customer"]["code"];
+        } else {
+            return "";
+        }
+    }
+
+    function get_time_string(time_in_sec) {
+        if (time_in_sec > 0) {
+            return moment(time_in_sec * 1000).format(dateTimePickerWithTime);
+        } else {
+            return "";
+        }
+    }
+
+    function updateWeatherOnMap(data) {
+        $.each(weatherMarkers, function (index, marker) {
+            marker.setMap(null);
+        });
+        weatherMarkers = [];
+
+        if (is_weather_on_map && data != null) {
+            $.each(data, function (index, area) {
+                var pinImage = new google.maps.MarkerImage("/markers/" + area["icon"]);
+                var marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(area["latitude"], area["longitude"]),
+                    map: map,
+                    title: area["area"],
+                    content: area['forecast'],
+                    icon: pinImage
+                });
+
+                weatherMarkers.push(marker);
+            });
+        }
+    }
+
+    function addDataToMapRC(data) {
+        $.each(data, function(index, value){
+            if (selected_user != null && selected_user != value["id"]) {
+                return;
+            }
+
+            var contentString = '<div id="content">' +
+                '<div>' + value['name'] + '</div>' +
+                '<a href=' + value['url'] + '>View Details</a>' +
+                '</div>';
+            var pinImage = new google.maps.MarkerImage("/markers/"+value["icon"]);
+
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng(value['location']["latitude"], value['location']["longitude"]),
+                map: map,
+                title: value["name"],
+                content: contentString,
+                icon: pinImage
+                //icon: get_car_marker(cd.status)
+            });
+
+            markers[value["id"]] = marker;
+
+            if (markersGroup[value["icon"]] == null) {
+                markersGroup[value["icon"]] = [];
+            }
+
+            markersGroup[value["icon"]].push(marker);
+            google.maps.event.addListener(marker, 'click', function () {
+                infoWindow.setContent(this.content);
+                infoWindow.open(map, this);
+            });
+        });
+    }
+
+    function addDataToMapCC(data) {
+        $.each(data, function(index, value){
+            if (selected_user != null && selected_user != value["id"]) {
+                return;
+            }
+
+            var contentString = '<div id="content">' +
+                '<div>' + value['name'] + '</div>' +
+                '<a href=' + value['url'] + '>View Details</a>' +
+                '</div>';
+            var pinImage = new google.maps.MarkerImage("/markers/"+value["icon"]);
+
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng(value['location']["latitude"], value['location']["longitude"]),
+                map: map,
+                title: value["name"],
+                content: contentString,
+                icon: pinImage
+                //icon: get_car_marker(cd.status)
+            });
+
+            markers[value["id"]] = marker;
+
+            if (markersGroup[value["icon"]] == null) {
+                markersGroup[value["icon"]] = [];
+            }
+
+            markersGroup[value["icon"]].push(marker);
+            google.maps.event.addListener(marker, 'click', function () {
+                infoWindow.setContent(this.content);
+                infoWindow.open(map, this);
+            });
+        });
+    }
+
+    function resetCluster() {
+        var options = {
+            imagePath: '/markers/m'
+        };
+
+        markerCluster = new MarkerClusterer(map, Object.values(markers), options);
+
+        google.maps.event.addListener(infoWindow, 'domready', function() {
+            var iwOuter = $('.gm-style-iw');
+            var iwBackground = iwOuter.prev();
+            iwBackground.children(':nth-child(2)').css({'display' : 'none'});
+            iwBackground.children(':nth-child(4)').css({'display' : 'none'});
+            var iwCloseBtn = iwOuter.next();
+            iwCloseBtn.css({
+                opacity: '1',
+                right: '63px', top: '19px',
+                'background-color': 'transparent'
+            });
+            iwCloseBtn.mouseout(function(){
+                $(this).css({opacity: '1'});
+            });
+
+        });
+    }
+
+    function updateStatsOnMap(data) {
+        if(data["initial"] == true){
+            $('#stats .notification-div').removeClass('notification-div');
+            $('.active-pointer').removeClass('active-pointer');
+            $('[data-type="warden"][data-kind="all"]').addClass('active-pointer');
+            $('[data-type="warden"][data-kind="all"]').parent().addClass('notification-div');
+            type = 'warden';
+            kind = 'all';
+        }
+
+        removeAllMarker(null);
+        infoWindow = new google.maps.InfoWindow({content: ''});
+        markersGroup = intializeMarkersGroup();
+
+        addDataToMapRC(data["relief_camps"]);
+        addDataToMapCC(data["collection_centers"]);
+
+        resetCluster();
+    }
+
+    function clickStatus(color){
+        removeAllMarker(null);
+        for(i=0; i < markersGroup[color].length; i++){
+            marker = markersGroup[color][i];
+            markers.push(marker);
+            marker.setMap(map);
+        }
+    }
+
+
+</script>

@@ -1,0 +1,90 @@
+<p id="notice"><%= notice %></p>
+<div id="page-top">
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+
+          <!-- DataTales Example -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Requests
+                <%if relief_camp_admin_signed_in?%>
+                  <span class="float-right" >
+                <%= link_to new_camp_request_path do %> <i class="fas fa-plus"></i> Add New<% end %>
+            </span>
+                <%end%>
+              </h6>
+            </div>
+
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Relief camp</th>
+        <th>Collection centers</th>
+        <th>Quantity</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+    <%  center_items = nil %>
+        <% @camp_requests.each do |camp_request| %>
+        <% if collection_center_admin_signed_in? %>
+            <%  center_items = CenterItem.where(item_id: camp_request.item_id,collection_center_id: current_collection_center_admin.collection_center_id).where("center_items.quantity >= ?", camp_request.quantity)  %>
+        <% end %>
+        <% if relief_camp_admin_signed_in? || (collection_center_admin_signed_in? && (camp_request.status == 'open')) || (collection_center_admin_signed_in? && camp_request.collection_center.present? && (camp_request.collection_center_id == current_collection_center_admin.collection_center_id))%>
+
+        <tr>
+          <td><%= camp_request.item.name %></td>
+          <td><%= camp_request.relief_camp.camp_name %></td>
+          <td><%= camp_request.collection_center.try(:center_name) %></td>
+          <td><%= camp_request.quantity %></td>
+          <td><%= camp_request.status %></td>
+          <td>
+          <%if relief_camp_admin_signed_in?%>
+              <%= link_to camp_request do%><i class="fas fa-eye" aria-hidden="true"></i><% end %>
+                <%= link_to edit_camp_request_path(camp_request) do%><i class="far fa-edit" aria-hidden="true"></i><% end %>
+                <%= link_to camp_request, method: :delete, data: { confirm: 'Are you sure?' } do %><i class="fas fa-trash" aria-hidden="true"></i><% end %>
+          <% elsif collection_center_admin_signed_in? && (camp_request.status == 'open') && center_items.present? %>
+              <%= link_to accept_camp_request_path(camp_request), method: :post, data: { confirm: 'Are you sure?' } do%>ACCEPT<% end %>
+          <%end%>
+          </td>
+        </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+</div>
+</div>
+
+</div>
+<!-- /.container-fluid -->
+
+</div>
+<!-- End of Main Content -->
+
+
+</div>
+<!-- End of Content Wrapper -->
+
+</div>
+<!-- End of Page Wrapper -->
+
+
+
+</div>

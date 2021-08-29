@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  status: MyString
+  quantity: MyString
+  relief_camps: one
+  items: one
+  collection_centers: one
+
+two:
+  status: MyString
+  quantity: MyString
+  relief_camps: two
+  items: two
+  collection_centers: two

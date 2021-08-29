@@ -1,0 +1,29 @@
+<%= form_with(model: center_item, local: true) do |form| %>
+  <% if center_item.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(center_item.errors.count, "error") %> prohibited this center_item from being saved:</h2>
+
+      <ul>
+      <% center_item.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+    <div class="form-group row">
+      <div class="col-sm-6 mb-3 mb-sm-0">
+        <%= form.label :quantity %>
+        <%= form.text_field :quantity %>
+      </div>
+
+      <div class="col-sm-6">
+        <%= form.label :item_id %>
+        <%= form.collection_select(:item_id, Item.all, :id, :name) %>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit class: "btn btn-primary" %>
+    </div>
+<% end %>

@@ -1,0 +1,72 @@
+<style media="screen">
+  .btn {
+    background-color: DodgerBlue;
+    border: none;
+    color: white;
+    height:300px;
+    padding: 12px 16px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  a:link, a:visited {
+    color: white;
+    padding: 14px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  /* Darker background on mouse-over */
+  .btn:hover {
+    background-color: RoyalBlue;
+  }
+
+</style>
+ <head>
+   <meta charset="utf-8">
+   <title></title>
+ </head>
+
+ <body >
+
+   <div class="row">
+     <div class="container">
+       <div class="col-sm-6" >
+       <h3 align="center">Relief Camp Overview</h3>
+       <% rcid = current_relief_camp_admin.relief_camp_id%>
+           <%  @relief_camp = ReliefCamp.find(rcid)%>
+
+         <div class="container-fluid" style="border:1px solid #000000;"  >
+           <h4><%= @relief_camp.camp_name %></h4>
+           <p>
+             <strong>Relief camp  Co-ordinator :</strong><%= current_relief_camp_admin.email %> <br><br>
+             <%= @relief_camp.description %>
+           </p>
+
+         </div>
+         <br>
+       </div>
+
+
+       <div class="col-sm-6"  align="center">
+         <!-- <div class="container" align="center"> -->
+          <ul class="btn">
+            <br>
+            <a href="http://localhost:3000/reliefcamp_users"><i class="glyphicon glyphicon-user"></i> ReliefCamp User Management</a><br>
+             <a href="http://localhost:3000/camp_items"><i class="glyphicon glyphicon-shopping-cart"></i> Stock Management</a><br>
+            <a href="http://localhost:3000/collection_centers"><i class="glyphicon glyphicon-eye-open"></i> View Collection Centers</a><br>
+            <a href="http://localhost:3000/camp_requests"><i class="glyphicon glyphicon-envelope"></i> Stock Request Management</a><br>
+            <a href="http://localhost:3000/notifications"><i class="glyphicon glyphicon-bullhorn"></i> Notifications</a><br>
+
+
+          </ul>
+       <br>
+
+        </div>
+
+     </div>
+
+
+      </div>
+      </body>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<%= csrf_meta_tags %>
+<%= csp_meta_tag %>
+
+<%= stylesheet_link_tag    'application', media: 'all' %>
+<%= javascript_include_tag 'application' %>
+
+<head>
+  <title>ALIVIO</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Add icon library -->
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+  <link href="https://use.fontawesome.com/releases/v5.0.4/css/all.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+  <style>
+
+  </style>
+
+</head>
+
+<body>
+<div class="header">
+  <nav class="navbar navbar-inverse"style="position: fixed;top:0;width:100%;">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav " style="width: 100%;">
+          <% if super_admin_signed_in? %>
+              <li><%= link_to "HOME" ,admin_index_path%></li>
+              <li style="float:right;"><%= link_to "Sign out", destroy_user_session_path, method: :delete %></li>
+              <li><%= link_to "ReliefCamps", relief_camps_path %></li>
+              <li><%= link_to "CollectionCenters", collection_centers_path %></li>
+              <li><%= link_to "Informations", notifications_path %></li>
+              <li><%= link_to "Items", items_path %></li>
+              <li><%= link_to "ReliefCampAdmins", relief_camp_admins_path %></li>
+              <li><%= link_to "CollectionCenterAdmins", collection_center_admins_path %></li>
+              <li><%= link_to "InformationAdmins", information_admins_path %></li>
+          <% elsif relief_camp_admin_signed_in?%>
+              <li><%= link_to "HOME" ,rc_admin_index_path%></li>
+              <li style="float:right;"><%= link_to "Sign out", destroy_user_session_path, method: :delete %></li>
+              <li><%= link_to "People", reliefcamp_users_path %></li>
+              <li><%= link_to "Stocks", camp_items_path %></li>
+              <li><%= link_to "CollectionCenters", collection_centers_path %></li>
+              <li><%= link_to "Stock Requests", camp_requests_path %></li>
+              <li><%= link_to "notifications", notifications_path %></li>
+          <% elsif collection_center_admin_signed_in?%>
+              <li><%= link_to "HOME" ,cc_admin_index_path%></li>
+              <li style="float:right;"><%= link_to "Sign out", destroy_user_session_path, method: :delete %></li>
+              <li><%= link_to "Stocks", center_items_path %></li>
+              <li><%= link_to "ReliefCamps", relief_camps_path %></li>
+              <li><%= link_to "Camp Requests", camp_requests_path %></li>
+              <li><%= link_to "Stock Requests", center_requests_path %></li>
+              <li><%= link_to "notifications", notifications_path %></li>
+          <% elsif information_admin_signed_in? %>
+              <li><%= link_to "HOME" ,notifications_path%></li>
+              <li style="float:right;"><%= link_to "Sign out", destroy_user_session_path, method: :delete %></li>
+              <li><%= link_to "Informations", notifications_path %></li>
+          <% elsif user_signed_in? %>
+              <li><%= link_to "HOME" ,user_index_path%></li>
+              <li style="float:right;"><%= link_to "Sign out", destroy_user_session_path, method: :delete %></li>
+              <li><%= link_to "Users", reliefcamp_users_path %></li>
+              <li><%= link_to "ReliefCamps", relief_camps_path %></li>
+              <li><%= link_to "CollectionCenters", collection_centers_path %></li>
+              <li><%= link_to "Center Requests", center_requests_path %></li>
+              <li><%= link_to "Informations", notifications_path %></li>
+          <% else %>
+              <li><%= link_to "HOME" ,root_path%></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <img class="center-fit" src="https://images-eu.ssl-images-amazon.com/images/G/31/traffic/PC_editorial._CB1198675309_.jpg" alt="ALIVIO">
+</div>
+<!-- <div class="jumbotron text-center" style="margin-bottom:0 ">
+<h2>Let's explore blogging</h2>
+</div> -->
+<%= yield %>
+</body>
+<div class="footer" >
+  <!-- <h3 class="my-4 text-white">ALIVIO</h3><br> -->
+<div class="card">
+  <div class="py-2 my-4">
+    <a href="#"><i class="fab fa-facebook fa-2x text-primary "></i></a>
+    <!-- <a href="#"><i class="fab fa-google-plus fa-2x text-danger "></i></a> -->
+    <a href="#"><i class="fab fa-twitter fa-2x text-info "></i></a><br>
+    <i class="fa fa-phone  text-center text-md-left "> +91 8075641965   |</i>
+    <i class="fa fa-envelope text-black text-center text-md-left " >
+     <a href="mailto:niranjankkv1999@gmail.com" ><span>alivio@gmail.com</span></a></i>
+    |   <i class="fa fa-map-marker text-center text-md-left ">Perinthalmanna</i>
+
+    </div>
+  </div>
+  </div>
+</html>
+<script>
+    $(document).ready( function () {
+        $('#table_id').DataTable();
+    } );
+</script>

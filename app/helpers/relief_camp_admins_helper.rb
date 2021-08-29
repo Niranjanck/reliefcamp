@@ -1,0 +1,2 @@
+module ReliefCampAdminsHelper
+end

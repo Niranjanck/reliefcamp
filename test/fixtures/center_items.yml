@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  quantity: MyString
+  collection_centers: one
+  items: one
+
+two:
+  quantity: MyString
+  collection_centers: two
+  items: two
